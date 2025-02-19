@@ -17,7 +17,7 @@ url = 'https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest'
 # Parâmetros da requisição para obter a cotação do Bitcoin
 parameters = {
     'symbol': 'BTC',  # Identificando o Bitcoin pelo símbolo
-    'convert': 'USD'  # Convertendo a cotação para USD
+    'convert': 'BRL'  # Convertendo a cotação para REAL
 }
 
 # Headers com a chave da API obtida do arquivo .env
@@ -66,7 +66,7 @@ def criar_tabela():
         print(f"Erro ao criar a tabela: {e}")
 
 # Função para salvar os dados no banco de dados
-def salvar_no_rds(usd_quote):
+def salvar_no_rds(brl_quote):
     try:
         conn = psycopg2.connect(
             host=DB_HOST,
@@ -81,10 +81,10 @@ def salvar_no_rds(usd_quote):
             "INSERT INTO bitcoin_quotes (price, volume_24h, market_cap, last_updated) VALUES (%s, %s, %s, %s)"
         )
         cursor.execute(insert_query, (
-            usd_quote['price'],
-            usd_quote['volume_24h'],
-            usd_quote['market_cap'],
-            usd_quote['last_updated']
+            brl_quote['price'],
+            brl_quote['volume_24h'],
+            brl_quote['market_cap'],
+            brl_quote['last_updated']
         ))
         conn.commit()
         cursor.close()
@@ -102,10 +102,10 @@ def consultar_cotacao_bitcoin():
         # Verificar se os dados do Bitcoin estão presentes na resposta
         if 'data' in data and 'BTC' in data['data']:
             bitcoin_data = data['data']['BTC']
-            usd_quote = bitcoin_data['quote']['USD']
+            brl_quote = bitcoin_data['quote']['BRL']
             
             # Salvar os dados no banco de dados
-            salvar_no_rds(usd_quote)
+            salvar_no_rds(brl_quote)
         else:
             print("Erro ao obter a cotação do Bitcoin:", data['status'].get('error_message', 'Erro desconhecido'))
 
